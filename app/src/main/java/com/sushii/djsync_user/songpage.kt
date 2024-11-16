@@ -115,7 +115,6 @@ class songpage : AppCompatActivity() {
                     val intent = Intent(this, SelectedSongs::class.java)
                     intent.putStringArrayListExtra("SongList", ArrayList(songList2))
                     startActivity(intent)
-                    finish()
                     // Add your navigation logic here
                     true
 
@@ -409,12 +408,7 @@ class songpage : AppCompatActivity() {
 
 
 
-    private fun Int.toByteAllocation(): Int {
-        return when (this) {
-            AudioFormat.ENCODING_PCM_16BIT -> 2
-            else -> throw IllegalArgumentException("Unsupported encoding")
-        }
-    }
+
 
     private fun ByteBuffer.putTrimming(byteArray: ByteArray) {
         val spaceLeft = this.capacity() - this.position()
