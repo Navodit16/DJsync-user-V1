@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/Home"
+        android:title="Home"
+        tools:ignore="HardcodedText"
+        android:icon="@drawable/home"/>
+
+    <item
+        android:id="@+id/points"
+        android:title="Points"
+        tools:ignore="HardcodedText"
+        android:icon="@drawable/crown"/>
+
+    <item
+        android:id="@+id/Selected_songs"
+        android:title="Your Songs"
+        tools:ignore="HardcodedText"
+        android:icon="@drawable/star_white"/>
+    <item
+        android:id="@+id/Logout"
+        android:title="Logout"
+        tools:ignore="HardcodedText"
+        android:icon="@drawable/logout"/>
+
+</menu>
