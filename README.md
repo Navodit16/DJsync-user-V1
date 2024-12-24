@@ -1,0 +1,1 @@
+This is the app which is provided to the crowd during a DJ session. Through this app people can recommend songs to DJ. People can sign in through google, select the club they are visiting and give their recommendation the club's DJ.
