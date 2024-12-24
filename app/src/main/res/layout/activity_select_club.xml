@@ -27,7 +27,7 @@
         android:layout_width="393dp"
         android:layout_height="59dp"
         android:layout_marginTop="52dp"
-        android:text="CLUB1"
+        android:text="MY TABLE"
         android:backgroundTint="@color/lavender"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
