@@ -40,6 +40,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.spotify.android.appremote.api.SpotifyAppRemote
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
@@ -163,7 +164,7 @@ class songpage : AppCompatActivity() {
 
 
         val builder = AuthorizationRequest.Builder(getString(R.string.CLIENT_ID), AuthorizationResponse.Type.TOKEN, REDIRECT_URI)
-        builder.setScopes(arrayOf("streaming"))
+        builder.setScopes(arrayOf("streaming", "user-read-private", "user-read-email", "playlist-read-private", "user-read-playback-state","app-remote-control"))
         val request = builder.build()
 
         AuthorizationClient.openLoginInBrowser(this, request)
@@ -261,7 +262,7 @@ class songpage : AppCompatActivity() {
             when (response.type) {
                 AuthorizationResponse.Type.TOKEN -> {
                     accessToken = response.accessToken
-                    Toast.makeText(this, "Authentication successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Logged into spotify!", Toast.LENGTH_SHORT).show()
                 }
                 AuthorizationResponse.Type.ERROR -> {
                     Toast.makeText(this, "Error during authentication: ${response.error}", Toast.LENGTH_SHORT).show()
@@ -292,27 +293,44 @@ class songpage : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                response.body?.string()?.let { jsonString ->
-                    val jsonObject = JSONObject(jsonString)
-                    val tracks = jsonObject.getJSONObject("tracks").getJSONArray("items")
+                if (response.isSuccessful) {
+                    response.body?.string()?.let { jsonString ->
+                        try {
+                            val jsonObject = JSONObject(jsonString)
+                            val tracks = jsonObject.getJSONObject("tracks").getJSONArray("items")
 
-                    val songList = mutableListOf<songList>() // Updated data list for RecyclerView
 
-                    for (i in 0 until tracks.length()) {
-                        val track = tracks.getJSONObject(i)
-                        val songName = track.getString("name")
-                        val artistName = track.getJSONArray("artists").getJSONObject(0).getString("name")
-                        val albumImageUrl = track.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url")
+                            val songList = mutableListOf<songList>()
+                            for (i in 0 until tracks.length()) {
+                                val track = tracks.getJSONObject(i)
+                                val songName = track.getString("name")
+                                val artistName = track.getJSONArray("artists").getJSONObject(0).getString("name")
+                                val albumImageUrl = track.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url")
 
-                        songList.add(songList(songName, artistName, albumImageUrl)) // Use the updated class name
+                                songList.add(songList(songName, artistName, albumImageUrl))
+                            }
+
+                            runOnUiThread {
+                                songAdapter.setSongList(songList)
+                                findViewById<RecyclerView>(R.id.recycler_view).visibility = View.VISIBLE
+                            }
+                        } catch (e: JSONException) {
+                            runOnUiThread {
+                                Toast.makeText(this@songpage, "Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
+                } else {
+                    val grantedScopes = response.header("Spotify-Auth-Scopes") // Log this to verify
+                    Log.d("SpotifyAuth", "Granted Scopes: $grantedScopes")
 
+                    Log.e("SpotifyAPI", "Response: ${response.code} - ${response.body?.string()}")
                     runOnUiThread {
-                        songAdapter.setSongList(songList) // Ensure songAdapter is initialized correctly
-                        findViewById<RecyclerView>(R.id.recycler_view).visibility = View.VISIBLE
+                        Toast.makeText(this@songpage, "API Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
+
         })
     }
 
